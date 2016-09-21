@@ -452,7 +452,7 @@ function createResponse(messageText){
 
   var response;
   if(messageText.includes("stupid") || messageText.includes("fuck u")){
-    response = "Oh you are so rude!";
+    return  "Oh you are so rude!";
   }
 
   if(messageText == "budus"){
