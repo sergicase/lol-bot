@@ -237,6 +237,7 @@ function receivedAuthentication(event) {
 function receivedMessage(event) {
   var senderID = event.sender.id;
   var recipientID = event.recipient.id;
+  campion.senderID = senderID;
   var timeOfMessage = event.timestamp;
   var message = event.message;
 
@@ -484,7 +485,7 @@ function getLeagueSummoner(id){
   }, function (error, response, body) {
       var result = JSON.parse(body);
       champion.league = resul[id]["tier"];
-      sendTextMessage();
+      sendTextMessage(champion.senderID,"text");
   }); 
 }
 
