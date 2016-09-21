@@ -86,7 +86,7 @@ app.get('/webhook', function(req, res) {
 
 app.get('/bot', function(req,res){
 
-  name = "budus";
+  name = "blad3r";
   getSummonerInfoByName(name);
   
 })
@@ -452,6 +452,7 @@ function callSendAPI(messageData) {
 
 function getSummonerInfoByName(name){
 
+  name = name.toLowerCase();
   var url = RIOT_URL+"api/lol/euw/v1.4/summoner/by-name/"+name+"?api_key="+APP_RIOT;
   champion.name = name;
   request({
@@ -468,15 +469,21 @@ function getSummonerInfoByName(name){
 function getLeagueSummoner(id){
   var name = "budus";
   var url = RIOT_URL+"/api/lol/euw/v2.5/league/by-summoner/"+id+"/entry?api_key="+APP_RIOT;
-
-  console.log(url);
   request({
     uri: url,
     method: 'GET'
   }, function (error, response, body) {
-      var result = JSON.parse(body);
-      champion.league = result[id][0]["tier"];
+
+    if(response.statusCode == 200){
+       var result = JSON.parse(body);
+       champion.league = result[id][0]["tier"];
+       sendTextMessage(champion.senderID,"text");
+    }else{
+
+      champion.league = "unranked";
       sendTextMessage(champion.senderID,"text");
+    }
+     
   }); 
 }
 
