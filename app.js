@@ -265,7 +265,7 @@ function receivedMessage(event) {
     // the text we received.
     switch (messageText) {
       default:
-        getSummonerInfoByName("budus");
+        getSummonerInfoByName(messageText);
     }
   } else if (messageAttachments) {
     sendTextMessage(senderID, "Message with attachment received");
