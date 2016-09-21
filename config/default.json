@@ -2,5 +2,5 @@
     "appSecret": "baa261d8e3fd17ff4a22799938f99dc3",
     "pageAccessToken": "EAAN3tzswUQMBAOdxgF1XOzkgWQZANEEPtvLmS0ORUoxkZBJjZBtntRqfkRTdbCozjBZCx2oIUbPPfZCRfiVJePHQdgZAex8sYN7ZCHOBGPHQccNyOFiIVKesIQMloGaNOtnGJ7AB0iwnMcSaJfJFkxcnBAkB5C42pPZA1r95GRRsoAZDZD",
     "validationToken": "myvalidationtoken",
-    "serverURL": "https://joke-robot.herokuapp.com/"
+    "serverURL": "https://lol-bot.herokuapp.com/"
 }
