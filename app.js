@@ -22,6 +22,7 @@ var app = express();
 app.set('port', process.env.PORT || 5000);
 app.set('view engine', 'ejs');
 app.use(bodyParser.json({ verify: verifyRequestSignature }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 /*
  * Be sure to setup your config values before running this code. You can 
@@ -81,16 +82,10 @@ app.get('/webhook', function(req, res) {
 });
 
 app.get('/bot', function(req,res){
-  var data = req.body;
-  console.log("Heres is the bot");
-  request({
-    uri: 'localhost:5000',
-    method: 'GET',
-    json: "{hello:test}"
-
-  },function (error, response, body) {
-    console.log(response);
-  });  
+  getSummonerInfoByName("budus",function(response){
+      return response;
+    });
+  
 })
 
 
@@ -470,7 +465,9 @@ function getSummonerInfoByName(name,callback){
     uri: url,
     method: 'GET'
   }, function (error, response, body) {
-      callback(body.budus.id);
+      var result = JSON.parse(body);
+      result = result[name]["id"];
+      callback(result);
   });  
 }
 
