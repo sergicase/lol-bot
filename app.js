@@ -16,6 +16,7 @@ const
   crypto = require('crypto'),
   express = require('express'),
   https = require('https'),  
+  champion = {},s
   request = require('request');
 
 var app = express();
@@ -82,11 +83,13 @@ app.get('/webhook', function(req, res) {
 });
 
 app.get('/bot', function(req,res){
-  getSummonerInfoByName("budus",function(response){
-      return response;
-    });
+
+  
   
 })
+
+
+
 
 
 /*
@@ -258,7 +261,7 @@ function receivedMessage(event) {
     // the text we received.
     switch (messageText) {
       default:
-        sendTextMessage(senderID, messageText);
+        getSummonerInfoByName("budus");
     }
   } else if (messageAttachments) {
     sendTextMessage(senderID, "Message with attachment received");
@@ -361,7 +364,8 @@ function receivedAccountLink(event) {
  */
 function sendTextMessage(recipientId, messageText) {
   
-  messageText = createResponse(messageText);
+  
+  var messageText = "Your Summoner is:" + champion.league; 
   var messageData = {
     recipient: {
       id: recipientId
@@ -451,14 +455,12 @@ function createResponse(messageText){
   }
 
   if(messageText.includes("budus")){
-    getSummonerInfoByName("budus",function(response_callback){
-      return response_callback;
-    });
+    getSummonerInfoByName("budus");
   }
 
 }
 
-function getSummonerInfoByName(name,callback){
+function getSummonerInfoByName(name){
 
   var url = RIOT_URL+"api/lol/euw/v1.4/summoner/by-name/"+name+"?api_key="+APP_RIOT;
   request({
@@ -466,13 +468,24 @@ function getSummonerInfoByName(name,callback){
     method: 'GET'
   }, function (error, response, body) {
       var result = JSON.parse(body);
-      result = result[name]["id"];
-      callback(result);
+      champion.name = name;
+      champion.id = result[name]["id"];
+      getLeagueSummoner(champion.id);
   });  
 }
 
-function getSummonerInfoById(id){
 
+function getLeagueSummoner(id){
+  var name = "budus";
+  var url = RIOT_URL+"/api/lol/{region}/v2.5/league/by-summoner/"+id+"/entry?api_key="+APP_RIOT;
+  request({
+    uri: url,
+    method: 'GET'
+  }, function (error, response, body) {
+      var result = JSON.parse(body);
+      champion.league = resul[id]["tier"];
+      sendTextMessage();
+  }); 
 }
 
 // Start server
