@@ -16,9 +16,11 @@ const
   crypto = require('crypto'),
   express = require('express'),
   https = require('https'),  
-  champion = {},
   request = require('request');
 
+
+var champion = {};
+var name;
 var app = express();
 app.set('port', process.env.PORT || 5000);
 app.set('view engine', 'ejs');
@@ -84,7 +86,8 @@ app.get('/webhook', function(req, res) {
 
 app.get('/bot', function(req,res){
 
-  
+  name = "budus";
+  getSummonerInfoByName(name);
   
 })
 
@@ -237,7 +240,7 @@ function receivedAuthentication(event) {
 function receivedMessage(event) {
   var senderID = event.sender.id;
   var recipientID = event.recipient.id;
-  campion.senderID = senderID;
+  champion.senderID = senderID;
   var timeOfMessage = event.timestamp;
   var message = event.message;
 
@@ -420,6 +423,7 @@ function sendTypingOff(recipientId) {
  * get the message id in a response 
  *
  */
+
 function callSendAPI(messageData) {
   request({
     uri: 'https://graph.facebook.com/v2.6/me/messages',
@@ -446,30 +450,15 @@ function callSendAPI(messageData) {
 }
 
 
-
-
-function createResponse(messageText){
-
-  var response;
-  if(messageText.includes("stupid") || messageText.includes("fuck u")){
-    return  "Oh you are so rude!";
-  }
-
-  if(messageText.includes("budus")){
-    getSummonerInfoByName("budus");
-  }
-
-}
-
 function getSummonerInfoByName(name){
 
   var url = RIOT_URL+"api/lol/euw/v1.4/summoner/by-name/"+name+"?api_key="+APP_RIOT;
+  champion.name = name;
   request({
     uri: url,
     method: 'GET'
-  }, function (error, response, body) {
+  }, function (error, response, body,summ_name) {
       var result = JSON.parse(body);
-      champion.name = name;
       champion.id = result[name]["id"];
       getLeagueSummoner(champion.id);
   });  
@@ -478,13 +467,15 @@ function getSummonerInfoByName(name){
 
 function getLeagueSummoner(id){
   var name = "budus";
-  var url = RIOT_URL+"/api/lol/{region}/v2.5/league/by-summoner/"+id+"/entry?api_key="+APP_RIOT;
+  var url = RIOT_URL+"/api/lol/euw/v2.5/league/by-summoner/"+id+"/entry?api_key="+APP_RIOT;
+
+  console.log(url);
   request({
     uri: url,
     method: 'GET'
   }, function (error, response, body) {
       var result = JSON.parse(body);
-      champion.league = resul[id]["tier"];
+      champion.league = result[id][0]["tier"];
       sendTextMessage(champion.senderID,"text");
   }); 
 }
