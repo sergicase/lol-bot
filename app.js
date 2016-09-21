@@ -450,9 +450,9 @@ function createResponse(messageText){
     return  "Oh you are so rude!";
   }
 
-  if(messageText == "budus"){
-    getSummonerInfoByName("budus",function(response){
-      return response;
+  if(messageText.includes("budus")){
+    getSummonerInfoByName("budus",function(response_callback){
+      return response_callback;
     });
   }
 
