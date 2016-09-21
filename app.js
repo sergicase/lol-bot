@@ -16,7 +16,7 @@ const
   crypto = require('crypto'),
   express = require('express'),
   https = require('https'),  
-  champion = {},s
+  champion = {};
   request = require('request');
 
 var app = express();
