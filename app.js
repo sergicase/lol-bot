@@ -50,6 +50,15 @@ const SERVER_URL = (process.env.SERVER_URL) ?
   (process.env.SERVER_URL) :
   config.get('serverURL');
 
+const APP_RIOT = (process.env.APP_RIOT) ? 
+  (process.env.APP_RIOT) : 
+  config.get('appRiot');
+
+const RIOT_URL = (process.env.RIOT_URL) ? 
+  (process.env.RIOT_URL) : 
+  config.get('riotURL');
+
+
 if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
   console.error("Missing config values");
   process.exit(1);
@@ -446,8 +455,26 @@ function createResponse(messageText){
     response = "Oh you are so rude!";
   }
 
-  return response;
+  if(messageText == "budus"){
+    getSummonerInfoByName("budus",function(response){
+      return response;
+    });
+  }
 
+}
+
+function getSummonerInfoByName(name,callback){
+
+  var url = RIOT_URL+"api/lol/euw/v1.4/summoner/by-name/"+name+"?api_key="+APP_RIOT;
+  request({
+    uri: url,
+    method: 'GET'
+  }, function (error, response, body) {
+      callback(body.budus.id);
+  });  
+}
+
+function getSummonerInfoById(id){
 
 }
 
