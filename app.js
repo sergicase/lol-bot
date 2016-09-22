@@ -20,7 +20,10 @@ const
 
 
 var champion = {};
+var type = "";
+var counter = 0;
 var name;
+var errorMessage = "";
 var app = express();
 app.set('port', process.env.PORT || 5000);
 app.set('view engine', 'ejs');
@@ -62,6 +65,9 @@ const RIOT_URL = (process.env.RIOT_URL) ?
   (process.env.RIOT_URL) : 
   config.get('riotURL');
 
+const APP_DRAGON = (process.env.APP_DRAGON) ? 
+  (process.env.APP_DRAGON) : 
+  config.get('appDragon');
 
 if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
   console.error("Missing config values");
@@ -86,8 +92,32 @@ app.get('/webhook', function(req, res) {
 
 app.get('/bot', function(req,res){
 
-  name = "blad3r";
-  getSummonerInfoByName(name);
+  //ark4nz
+  // Naitbe
+  // UA Armaggedon
+  // JTKr
+  // Crikrien
+  // Mankru
+
+  var messageText = "ranked:Mankru";
+  if(messageText == "help"){
+          console.log("this is the help commands");
+        } 
+  else {
+        if(!messageText.includes(":"))
+        {
+          type = "summoner";
+          getSummonerInfoByName(messageText);
+        } else{
+            var array = messageText.split(":");
+            if(array[0].includes("ranked") && array.length==2)
+            {
+              type= "ranked";
+              getSummonerInfoByName(array[1]);
+            }
+        }
+        }
+ 
   
 })
 
@@ -258,6 +288,8 @@ function receivedMessage(event) {
   var messageAttachments = message.attachments;
   var quickReply = message.quick_reply;
 
+  
+
   if (messageText) {
 
     // If we receive a text message, check to see if it matches any special
@@ -265,7 +297,24 @@ function receivedMessage(event) {
     // the text we received.
     switch (messageText) {
       default:
-        getSummonerInfoByName(messageText);
+
+        if(messageText == "help"){
+          console.log("this is the help commands");
+        } else {
+          if(!messageText.includes(":"))
+          {
+            type = "summoner";
+            getSummonerInfoByName(messageText);
+          } else{
+             var array = messageText.split(":");
+              if(array[0].includes("ranked") && array.length==2)
+              {
+                type= "ranked";
+                getSummonerInfoByName(array[1]);
+              }
+          }
+        }
+        
     }
   } else if (messageAttachments) {
     sendTextMessage(senderID, "Message with attachment received");
@@ -369,15 +418,17 @@ function receivedAccountLink(event) {
 function sendTextMessage(recipientId, messageText) {
   
   
+  var message;
+
+  if(type=="ranked"){
+    message = createCurrentGameTemplate();
+  }
   var messageText = "Your Summoner is:" + champion.league; 
   var messageData = {
     recipient: {
       id: recipientId
     },
-    message: {
-      text: messageText,
-      metadata: "DEVELOPER_DEFINED_METADATA"
-    }
+    message
   };
 
   callSendAPI(messageData);
@@ -458,16 +509,28 @@ function getSummonerInfoByName(name){
   request({
     uri: url,
     method: 'GET'
-  }, function (error, response, body,summ_name) {
-      var result = JSON.parse(body);
-      champion.id = result[name]["id"];
-      getLeagueSummoner(champion.id);
+  }, function (error, response, body) {
+      
+      if(response.statusCode == 200){
+        var result = JSON.parse(body);
+        champion.id = result[name]["id"];
+        if(type == "ranked")
+        {
+          getCurrentGame(champion.id,0);
+        } else if(type == "summoner"){
+          getLeagueSummoner(champion.id);
+        }
+        
+      } else {
+        type = "error";
+        errorMessage = "Not summoner found";
+      }
+      
   });  
 }
 
 
 function getLeagueSummoner(id){
-  var name = "budus";
   var url = RIOT_URL+"/api/lol/euw/v2.5/league/by-summoner/"+id+"/entry?api_key="+APP_RIOT;
   request({
     uri: url,
@@ -487,12 +550,143 @@ function getLeagueSummoner(id){
   }); 
 }
 
+
+function getCurrentGame(id,counter)
+{
+  console.log(id);
+  var url = "https://euw.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/EUW1/"+id+"?api_key="+APP_RIOT;
+    request({
+        uri: url,
+        method: 'GET'
+      }, function (error, response, body) {
+
+        if(response.statusCode == 200)
+        {
+          var result = JSON.parse(body);
+          getSummonerIds(result);
+          champion.summoners = [];
+          getRecursiveSummoners(champion.list[0],0);
+
+        } else {
+          console.log("Not current game");
+        }
+        
+      });  
+    
+}
+
+
+function getRecursiveSummoners(id,counter)
+{
+  if(counter<10){
+      var url = RIOT_URL+"/api/lol/euw/v2.5/league/by-summoner/"+id+"/entry?api_key="+APP_RIOT;
+      request({
+        uri: url,
+        method: 'GET'
+      }, function (error, response, body) {
+        var result = JSON.parse(body);
+        counter++;
+        if(response.statusCode == 200){
+          champion.summoners.push(result[id][0]["tier"]);
+        }else{
+           champion.summoners.push("UNRANKED");
+        }
+       
+        getRecursiveSummoners(champion.list[counter],counter);
+      });
+  }else if(counter==10){
+     counter = 0;
+     champion.image = [];
+    getRecursiveChampionsName(champion.image_id[0],0);
+  }
+  else{
+    type = "error";
+    errorMessage = "No current game";
+  }
+}
+
+
+
+
+function getRecursiveChampionsName(id,counter)
+{
+  
+  if(counter<10){
+      var url = "https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion/"+id+"?api_key="+APP_RIOT;
+      request({
+        uri: url,
+        method: 'GET'
+      }, function (error, response, body) {
+        var result = JSON.parse(body);
+        counter++;
+        champion.image.push(result["key"]);
+        getRecursiveChampionsName(champion.image_id[counter],counter);
+      });
+  }else if(counter==10){
+    
+    sendTextMessage();
+  }
+  else{
+    type = "error";
+    errorMessage = "No current game";
+  }
+}
+
+
+function getSummonerIds(list)
+{
+  var size = list["participants"].length;
+  champion.list = [];
+  champion.image_id = [];
+  for(var i=0; i<size; i++)
+  {
+    champion.list.push(list["participants"][i]["summonerId"]);
+    champion.image_id.push(list["participants"][i]["championId"])
+  }
+
+}
+
 // Start server
 // Webhooks must be available via SSL with a certificate signed by a valid 
 // certificate authority.
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
 });
+
+
+function createCurrentGameTemplate()
+{
+
+  var my_elements = createElementsTemplate();
+
+  var message = {
+    attachment : {
+      type: "template",
+      payload: {
+        template_type: "generic",
+        elements: my_elements
+      }
+    }
+  };
+  
+  return message;
+}
+
+function createElementsTemplate()
+{
+  var elements = [];
+  for(var i=0; i<champion.image.length; i++){
+    var element_object = {
+      title: champion.image[i],
+      subtitle: champion.summoners[i],
+      image_url : APP_DRAGON+champion.image[i]+"_0.jpg"
+    }
+    elements.push(element_object);
+  }
+
+  console.log(elements);
+  return elements;
+}
 
 module.exports = app;
 

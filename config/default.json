@@ -4,5 +4,6 @@
     "validationToken": "myvalidationtoken",
     "serverURL": "https://lol-bot.herokuapp.com/",
     "appRiot": "RGAPI-61400f40-accc-43b3-96d8-aa69becf76a2",
-    "riotURL": "https://euw.api.pvp.net/"
+    "riotURL": "https://euw.api.pvp.net/",
+    "appDragon": "http://ddragon.leagueoflegends.com/cdn/img/champion/loading/"
 }
