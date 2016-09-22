@@ -679,7 +679,7 @@ function createElementsTemplate()
     var element_object = {
       title: champion.image[i],
       subtitle: champion.summoners[i],
-      image_url : APP_DRAGON+champion.image[i]+"_0.jpg"
+      image_url : APP_DRAGON+champion.image[i]+".png"
     }
     elements.push(element_object);
   }
