@@ -415,7 +415,7 @@ function receivedAccountLink(event) {
  * Send a text message using the Send API.
  *
  */
-function sendTextMessage(recipientId, messageText) {
+function sendTextMessage(recipientId) {
   
   
   var message;
@@ -624,7 +624,7 @@ function getRecursiveChampionsName(id,counter)
       });
   }else if(counter==10){
     
-    sendTextMessage();
+    sendTextMessage(champion.senderID);
   }
   else{
     type = "error";
