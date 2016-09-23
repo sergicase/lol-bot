@@ -696,5 +696,7 @@ function createMessageText(message_text)
   var message = {
     text: message_text
   }
+
+  return message;
 }
 
