@@ -422,14 +422,19 @@ function sendTextMessage(recipientId) {
 
   if(type=="ranked"){
     message = createCurrentGameTemplate();
+    
+  }else if(type=="error")
+  {
+    message = createMessageText(errorMessage);
   }
-  var messageText = "Your Summoner is:" + champion.league; 
+
   var messageData = {
     recipient: {
       id: recipientId
     },
     message
   };
+  
 
   callSendAPI(messageData);
 }
@@ -524,6 +529,7 @@ function getSummonerInfoByName(name){
       } else {
         type = "error";
         errorMessage = "Not summoner found";
+        sendTextMessage(champion.senderID);
       }
       
   });  
@@ -540,11 +546,11 @@ function getLeagueSummoner(id){
     if(response.statusCode == 200){
        var result = JSON.parse(body);
        champion.league = result[id][0]["tier"];
-       sendTextMessage(champion.senderID,"text");
+       sendTextMessage(champion.senderID);
     }else{
 
       champion.league = "unranked";
-      sendTextMessage(champion.senderID,"text");
+      sendTextMessage(champion.senderID);
     }
      
   }); 
@@ -568,7 +574,9 @@ function getCurrentGame(id,counter)
           getRecursiveSummoners(champion.list[0],0);
 
         } else {
-          console.log("Not current game");
+          type = "error";
+          errorMessage = "Not current game"
+          sendTextMessage(champion.senderID);
         }
         
       });  
@@ -599,10 +607,6 @@ function getRecursiveSummoners(id,counter)
      champion.image = [];
     getRecursiveChampionsName(champion.image_id[0],0);
   }
-  else{
-    type = "error";
-    errorMessage = "No current game";
-  }
 }
 
 
@@ -625,10 +629,6 @@ function getRecursiveChampionsName(id,counter)
   }else if(counter==10){
     
     sendTextMessage(champion.senderID);
-  }
-  else{
-    type = "error";
-    errorMessage = "No current game";
   }
 }
 
@@ -689,4 +689,12 @@ function createElementsTemplate()
 }
 
 module.exports = app;
+
+
+function createMessageText(message_text)
+{
+  var message = {
+    text: message_text
+  }
+}
 
